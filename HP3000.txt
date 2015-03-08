@@ -1,0 +1,300 @@
+   10 REM *****************************************************
+   20 REM *                                                   *
+   30 REM *                   SPACE WAR                       *
+   40 REM *   For one or two Players on a Graphics Terminal   *
+   50 REM *                  Jobst Brandt                     *
+   60 REM *                 Hewlett-Packard                   *
+   70 D$="(01 Apr 82)"
+   80 REM *                                                   *
+   90 REM *****************************************************
+  100 DIM C[46],O[21,3],Q[4],S[16,2]
+  110 DIM A$[80],D$[12],A1$[2,16],N$[2,12],N1$[16],P$[1],V1$[2,16]
+  120 REM Star locs and size: Xmax=720, Ymax=360, Smax=0, Smin=0
+  130 DATA 0,0,0,0,10,0,-2,0,0,2,-1,0,3,2,-8,0,-2,-2,-4,0,-4
+  140 DATA -2,4,-2,4,0,2,-2,8,0,-3,2,1,0,0,2
+  150 MAT READ Q,S
+  160 G=FNI(0)
+  170 REM - Q CONTAINS Xlim,Ylim(screen),Distance,Maxsize(stars)
+  180 IF G THEN 210
+  190 PRINT '27"H"'27"J";LIN(10);"This is not a graphics terminal!"'7
+  200 STOP
+  210 N$[1]="Spock",N$[2]="Darth"
+  220 M=INT(2*RND(0)+1),O=0
+  230 N1$="9",P$="2"
+  240 PRINT '27"*dA"
+  250 Q=FNH(0)
+  260 PRINT '27"*mR"
+  270 PRINT '27"H"'27"J"'27"*dA";
+  280 F1=F2=F3=0,V1$[1]=V1$[2]="20"
+  290 PRINT FNP$(9,0);'27"K(";P$;") One or two players? : ";
+  300 LINPUT A$
+  310 GOTO FNC(A$[1,1]) OF 290,290,290,260,290,2980
+  320 IF A$="" THEN A$=P$
+  330 CONVERT A$ TO Q,290
+  340 IF Q<>1 AND Q<>2 THEN 290
+  350 P=Q
+  360 CONVERT P TO P$
+  370 IF P=2 THEN 400
+  380 N$[1]="Player",N$[2]="Enemy"
+  390 GOTO 470
+  400 FOR J=1 TO 2
+  410   PRINT FNP$(9,0);'27"K("+N$[J]+")  Name of captain #";J;
+  420   LINPUT A$
+  430   GOTO FNC(A$) OF 280,440,280,260,280,2980
+  440   IF A$="" THEN 460
+  450   N$[J]=FNS$(A$)
+  460 NEXT J
+  470 PRINT FNP$(9,0);'27"K(";N1$;") How many stars? (0 to 18): ";
+  480 LINPUT A$
+  490 GOTO FNC(A$[1,1]) OF 280,470,470,470,280,2980
+  500 IF A$="" THEN A$=N1$
+  510 CONVERT A$ TO N,470
+  520 N=INT(N)
+  530 IF ABS(N)<0 OR ABS(N)>18 THEN 470
+  540 CONVERT N TO N1$
+  550 REM O=Black hole
+  560 O=(N<0)
+  570 N=ABS(N)
+  580 Q[4]=10-N/6
+  590 Q[3]=53-N
+  600 PRINT '27"h"'27"J";
+  610 REM -------------------- MAKE STARS ---------------------
+  620 N=N+O
+  630 FOR I=1 TO N
+  640   R=0
+  650   R=R+1
+  660   IF R>20 THEN 630
+  670   O[I,3]=Q[4]
+  680   REM -- J: 1 = Xpos, 2 = Ypos, 3 = Mass/Size --
+  690   FOR J=3 TO 1 STEP -1
+  700     O[I,J]=INT((Q[J]-2*O[I,3])*RND(0)+O[I,3])
+  710   NEXT J
+  720   FOR J=1 TO I-1
+  730     T=(O[I,3]+O[J,3]+10)**2
+  740     IF (O[I,1]-O[J,1])**2+(O[I,2]-O[J,2])**2<T THEN 650
+  750   NEXT J
+  760 NEXT I
+  770 REM ----------------- PLACE SPACE SHIPS -----------------
+  780 REM -- Space ship size = 5 --
+  790 O[N+1,3]=O[N+2,3]=5
+  800 FOR J=1 TO 2
+  810   T=4*LEN(N$[J]) MAX 10
+  820   IF J=1 THEN I=.28*Q[1],Q=0
+  830   ELSE T=-T,I=-.28*Q[1],Q=Q[1]
+  840   R=0
+  850   R=R+1
+  860   IF R>20 THEN 630
+  870   X=INT(Q+I*RND(0)+T)
+  880   Y=INT((Q[2]-30)*RND(0)+20)
+  890   FOR K=1 TO N
+  900     IF (X-O[K,1])**2+(Y-O[K,2])**2<(O[K,3]*2)**2 THEN 850
+  910   NEXT K
+  920   O[N+J,1]=X
+  930   O[N+J,2]=Y
+  940 NEXT J
+  950 A1$[1]="0",A1$[2]="180"
+  960 IF P>1 THEN A$=N$[1],N$[1]=N$[2],N$[2]=A$
+  970 REM -------------------- PLOT STARS ---------------------
+  980 PRINT '27"H"'27"J"'27"*m1B"'27"*dafC";
+  990 Z1=PIX(1/180)
+ 1000 FOR I=0 TO 45
+ 1010   C[I+1]=COS(I*10*Z1)
+ 1020 NEXT I
+ 1030 FOR I=1 TO N-O
+ 1040   FOR J=1 TO 37
+ 1050     X=INT(O[I,1]+O[I,3]*C[J]+.5)
+ 1060     Y=INT(O[I,2]-O[I,3]*C[J+9]+.5)
+ 1070     IF J=1 THEN PRINT '27"*pa";
+ 1080     PRINT USING "#,X,K,X,K";X,Y
+ 1090   NEXT J
+ 1100   PRINT "F"
+ 1110 NEXT I
+ 1120 PRINT '27"*dE"
+ 1130 REM ------------------ PLOT SPACE SHIPS -----------------
+ 1140 FOR I=1 TO 2
+ 1150   T=FNS(O[N+I,1],O[N+I,2],N$[I],I)
+ 1160 NEXT I
+ 1170 IF A$[1,1]="I" THEN 1430
+ 1180 GOTO 1210
+ 1190 REM --------------------- PLAY GAME ---------------------
+ 1200 M=(M MOD 2)+1
+ 1210 IF P=1 THEN M=1
+ 1220 PRINT '27"*paE"
+ 1230 PRINT '27"H"'27"J"'27"*dE"
+ 1240 PRINT FNP$(22,25);'27"K("+A1$[M]+") ";N$[M];"'s, launch angle: ";
+ 1250 B=20,F1=1
+ 1260 LINPUT A$
+ 1270 IF A$="" THEN A$=A1$[M]
+ 1280 GOTO FNC(A$[1,1]) OF 1230,980,1230,260,1230,2980
+ 1290 CONVERT A$ TO A,1230
+ 1300 A=SGN(A)*(ABS(A) MOD 360)
+ 1310 CONVERT A TO A1$[M]
+ 1320 IF N=0 THEN 1430
+ 1330 PRINT FNP$(22,25);'27"K";
+ 1340 PRINT "(";V1$[M];") ";N$[M];"'s initial velocity: ";
+ 1350 LINPUT A$
+ 1360 IF A$="" THEN A$=V1$[M]
+ 1370 GOTO FNC(A$[1,1]) OF 1230,980,1330,260,1230,2980
+ 1380 CONVERT A$ TO B,1330
+ 1390 IF B>=0 AND B<=20 THEN 1420
+ 1400 PRINT FNP$(21,25);"Velocity must be from 0 to 20"
+ 1410 GOTO 1330
+ 1420 CONVERT B TO V1$[M]
+ 1430 PRINT '27"H"'27"J"'27"*dclF"
+ 1440 PRINT '27"*m4a7B";
+ 1450 U1=U2=V1=V2=F3=0
+ 1460 X=.35*B*COS(A*Z1)
+ 1470 Y=.35*B*SIN(A*Z1)
+ 1480 U=X+O[N+M,1]+8*COS(A*Z1)
+ 1490 V=Y+O[N+M,2]+8*SIN(A*Z1)
+ 1500 PRINT FNG$(U,V)
+ 1510 IF F2 THEN 1570
+ 1520 REM ----------------- DRAW ROCKET PATH ------------------
+ 1530 U1=INT(U+.5),V1=INT(V+.5)
+ 1540 IF U1<>U2 OR V1<>V2 THEN PRINT USING "#,XK,XK";U1,V1
+ 1550 U2=U1,V2=V1
+ 1560 REM -- E = Xforce, F = Yforce --
+ 1570 E=F=0
+ 1580 FOR J=1 TO N
+ 1590   R5=O[J,1]-U
+ 1600   R6=O[J,2]-V
+ 1610   R4=R5**2+R6**2
+ 1620   R3=SQR(R4)
+ 1630   R2=R5/R3
+ 1640   R1=R6/R3
+ 1650   G=.017*(O[J,3]**3)/R4
+ 1660   E=E+G*R2
+ 1670   F=F+G*R1
+ 1680 NEXT J
+ 1690 X=X+E
+ 1700 Y=Y+F
+ 1710 U=U+X
+ 1720 V=V+Y
+ 1730 REM ------------------ FIND COLLISIONS ------------------
+ 1740 IF F2 THEN 1790
+ 1750 FOR J=1 TO N+2
+ 1760   IF O AND J=N THEN 1780
+ 1770   IF (U-O[J,1])**2+(V-O[J,2])**2<O[J,3]**2 THEN 1880
+ 1780 NEXT J
+ 1790 IF U<-400 OR U>1120 OR V<-400 OR V>760 THEN 1200
+ 1800 F2=(U<0 OR U>Q[1] OR V<0 OR V>Q[2])
+ 1810 REM -- F2=F3 (no change............) --
+ 1820 REM -- F2=1  (just went off screen.) --
+ 1830 REM -- F3=1  (just came onto screen) --
+ 1840 IF F2=F3 THEN 1510
+ 1850 IF F3 THEN PRINT FNG$(U,V)
+ 1860 F3=F2
+ 1870 GOTO 1510
+ 1880 REM ------------------ MAKE EXPLOSIONS ------------------
+ 1890 PRINT FNG$(U+2,V+2);'27"*m1B"
+ 1900 PRINT '27"*pg-2,6 -2,-6 -6,-2 6,-2 2,-6 2,6 6,2 -6,2E"
+ 1910 IF J<=N THEN 1200
+ 1920 PRINT '7'27"*dlE";FNP$(22,15);'27"K";
+ 1930 PRINT N$[M];" destroyed ";N$[J-N];"'s ship!";
+ 1940 PRINT "   (Y) Again? : ";
+ 1950 LINPUT A$
+ 1960 A$=UPS$(DEB$(A$))
+ 1970 IF A$[1,2]="//" THEN 2980
+ 1980 GOTO POS("NEDI",A$[1,1]) OF 2980,2980,980,980
+ 1990 GOTO 260
+ 2000 REM ******************* INPUT ******************* FNC ***
+ 2010 DEF FNC(I$)
+ 2020   REAL P,Z
+ 2030   CONVERT A$ TO Z,2050
+ 2040   RETURN 0
+ 2050   I$=UPS$(DEB$(I$))
+ 2060   IF I$="" THEN 2040
+ 2070   P=POS("BDHS/E",I$)
+ 2080   IF A$[1,2]="//" THEN P=6
+ 2090   IF P=3 THEN Q=FNH(0)
+ 2100   RETURN P
+ 2110 FNEND
+ 2120 REM **************** MAKE SHIPS ***************** FNS ***
+ 2130 DEF FNS(X,Y,A$,P)
+ 2140   S=(P-1)*2-1
+ 2150   PRINT FNG$(X,Y);'27"*pg";
+ 2160   PRINT USING "#,X,K,X,K";(FOR K=1 TO 16,S[K,1]*S,S[K,2])
+ 2170   PRINT "E"'27"*m5Q"
+ 2180   PRINT USING "#,5A,K,X,K,A";'27"*dks",X-4+P*4,Y-11,"O"
+ 2190   PRINT A$
+ 2200   PRINT '27"*dlT"
+ 2210   RETURN 0
+ 2220 FNEND
+ 2230 REM ***************** G CURSOR ****************** FNG$ **
+ 2240 DEF FNG$(X,Y)
+ 2250   DIM X$[3],Y$[3]
+ 2260   CONVERT INT(X+.5) TO X$
+ 2270   CONVERT INT(Y+.5) TO Y$
+ 2280   RETURN '27"*pa"+X$+","+Y$+"e"
+ 2290 FNEND
+ 2300 REM ***************** A CURSOR ****************** FNP$ **
+ 2310 DEF FNP$(X,Y)
+ 2320   DIM X$[2],Y$[2]
+ 2330   CONVERT X TO X$
+ 2340   CONVERT Y TO Y$
+ 2350   RETURN '27"&a"+X$+"r"+Y$+"C"
+ 2360 FNEND
+ 2370 REM ******************* HELP ******************** FNH ***
+ 2380 DEF FNH(Z)
+ 2390   DIM T$[6]
+ 2400   A$='27"&a26C"
+ 2410   PRINT '27"*ddleT"'27"H"'27"J"
+ 2420   PRINT "SPACE WAR ";D$;FNP$(6,0)
+ 2430   PRINT A$;"     Commands:";LIN(1)
+ 2440   PRINT A$;"      H = Help"
+ 2450   PRINT A$;"      S = Start"
+ 2460   PRINT A$;"      D = Display"
+ 2470   PRINT A$;"      I = Instant replay after hit"
+ 2480   PRINT A$;" / or B = Back"
+ 2490   PRINT A$;"// or E = Exit";FNP$(16,16);
+ 2500   PRINT "Negative number of stars gives a BLACK HOLE"
+ 2510   PRINT FNP$(18,21);"(Y) Are you ready to play? (Y/N): ";
+ 2520   LINPUT A$
+ 2530   A$=UPS$(DEB$(A$))
+ 2540   IF A$[1,1]="N" OR A$[1,1]="E" OR A$="//" THEN 2580
+ 2550   IF A$[1,1]="H" THEN Q=FNH(0)
+ 2560   PRINT '27"H"'27"J"'27"*dcL"
+ 2570   RETURN 0
+ 2580   PRINT '27"H"'27"J"
+ 2590   STOP
+ 2600 FNEND
+ 2610 REM ************** FUNCTION DOWNSHIFT *********** FNS$ **
+ 2620 DEF FNS$(Z$)
+ 2630   Z$=UPS$(DEB$(Z$))
+ 2640   M=0
+ 2650   FOR I=1 TO LEN(Z$)
+ 2660     K=NUM(Z$[I,I])
+ 2670     IF K=32 THEN M=0
+ 2680     IF K<65 OR K>91 THEN 2710
+ 2690     IF M THEN Z$[I,I]=CHR$(K+32)
+ 2700     M=1
+ 2710   NEXT I
+ 2720   RETURN Z$
+ 2730 FNEND
+ 2740 REM *********** POLL TERMINAL CAPABILITY ******** FNi ***
+ 2750 DEF FNI(Z)
+ 2760   Z=Y=0,X=54
+ 2770   PRINT '27"^"'27">"
+ 2780   LINPUT A$
+ 2790   IF NUM(A$[7,7]) MOD 16<8 THEN 2950
+ 2800   LINPUT A$
+ 2810   Z=(NUM(A$[4,4]) MOD 8>3)
+ 2820   IF NOT Z THEN 2950
+ 2830   PRINT '27"*s1^";
+ 2840   LINPUT A$
+ 2850   IF POS(A$,"264") THEN 2900
+ 2860   IF POS(A$,"2623") THEN Z=1,X=36,Y=24
+ 2870   ELSE Z=0
+ 2880   IF NOT Z THEN 2950
+ 2890   PRINT '27"&j@"
+ 2900   PRINT '27"*s5^"
+ 2910   LINPUT A$
+ 2920   FOR I=1 TO 2
+ 2930     CONVERT A$[I*7+8;6] TO Q[I],2870
+ 2940   NEXT I
+ 2950   RETURN Z
+ 2960 FNEND
+ 2970 REM ******************** EXIT ***************************
+ 2980 IF G THEN PRINT '27"*ddelaE"
+ 2990 PRINT '27"H",'27"J"
+ 3000 END
