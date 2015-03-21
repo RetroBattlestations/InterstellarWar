@@ -1,10 +1,11 @@
 In here you will find the BASIC program for a contest used on
-http://reddit.com/r/RetroBattlestations. This time around we are using
-the classic game "Space War" which was originally written for the
-PDP-1. I found this version written by Jobst Brandt on an HP3000 and
-liked it so much that I ported it to the Apple II. This Space War
-version can be played by one or two players, and the missles are
-affected by gravity.
+http://reddit.com/r/RetroBattlestations. This time around is a game
+"Space War" written by Jobst Brandt on an HP3000. I liked it so much
+that I ported it to the Apple II. I think it's loosely based on the
+original PDP-1 SpaceWar, but since it was written to run using HP
+graphics terminals at 9600bps, it is not "arcade-style" like the
+original and is instead turn based. This Space War version can be
+played by one or two players, and the missles are affected by gravity.
 
 http://en.wikipedia.org/wiki/Spacewar_(video_game)
 
