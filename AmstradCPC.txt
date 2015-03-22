@@ -68,15 +68,15 @@
 651 PRINT "r=";r
 652  exitloop=0
 660  IF r > 20 THEN i = n + 1: GOTO 755
-670  o(i,3) = q(4)
-680  REM  -- j: 1 = Xpos, 2 = Ypos, 3 = Mass/Size --
+670   o(i,3) = q(4)
+680   REM  -- j: 1 = Xpos, 2 = Ypos, 3 = Mass/Size --
 690  FOR j = 3 TO 1 STEP  - 1
 691 PRINT "j1=";j
 700   o(i,j) = INT((q(j) - 2 * o(i,3)) *  RND(1) + o(i,3))
 710  NEXT j
-720  FOR j = 1 TO i - 1: IF j > i - 1 THEN 750
+720  FOR j = 1 TO i-1: IF j > i-1 THEN 750
 721 PRINT "j2=";j
-730   t = (o(i,3) + o(j,3) + 10) ^ 2
+730   t =(o(i,3) + o(j,3) + 10) ^ 2
 740   IF (o(i,1) - o(j,1)) ^ 2 +(o(i,2) - o(j,2)) ^ 2 < t THEN j = i - 2: exitloop=-1: GOTO 749
 749   REM
 750  NEXT j
@@ -141,7 +141,7 @@
 1360 IF a$ = "" THEN a$ = v1$(m)
 1370 p1$ = a$: GOSUB 2000: ON r1 GOTO 1240,980,1330,270,1240,2980
 1380 b = VAL(a$)
-1390 IF b >  = 0 AND b <  = 20 THEN 1420
+1390 IF b >= 0 AND b <= 20 THEN 1420
 1400 LOCATE 26, 22: PRINT "Velocity must be from 0 to 20"
 1410 GOTO 1330
 1420 v1$(m) = STR$(b)
@@ -192,7 +192,7 @@
 1880 REM  ------------------ MAKE EXPLOSIONS ------------------
 1890 p1 = u + 2:p2 = v + 2: GOSUB 2230
 1900 FOR i = 1 TO 8:p1 = e(i,1):p2 = e(i,2): GOSUB 2250: NEXT
-1910 IF j <  = n THEN 1200
+1910 IF j <= n THEN 1200
 1920 LOCATE 16, 23: PRINT CHR$(18);
 1930 PRINT n$(m);" destroyed ";n$(j - n);"'s ship!";
 1940 PRINT "  (y) Again? : ";
@@ -219,10 +219,10 @@
 2230 REM  ***************** g CURSOR ****************** FNG$ **
 2240 cx = p1:cy = p2: RETURN
 2250 REM   ***************** DRAW LINE *************************
-2260 IF cx >  = 0 AND cx <  = q(1) AND cy >  = 0 AND cy <  = q(2) AND cx + p1 >  = 0 AND cx + p1 <  = q(1) AND cy + p2 >  = 0 AND cy + p2 <  = q(2) THEN MOVE cx,cy:DRAW cx+p1,cy+p2
+2260 IF cx >= 0 AND cx <= q(1) AND cy >= 0 AND cy <= q(2) AND cx + p1 >= 0 AND cx + p1 <= q(1) AND cy + p2 >= 0 AND cy + p2 <= q(2) THEN MOVE cx,cy:DRAW cx+p1,cy+p2
 2270 cx = cx + p1:cy = cy + p2
 2280 RETURN
-2290 IF cx >  = 0 AND cx <  = q(1) AND cy >  = 0 AND cy <  = q(2) AND p1 >  = 0 AND p1 <  = q(1) AND p2 >  = 0 AND p2 <  = q(2) THEN MOVE cx,cy:DRAW p1,p2
+2290 IF cx >= 0 AND cx <= q(1) AND cy >= 0 AND cy <= q(2) AND p1 >= 0 AND p1 <= q(1) AND p2 >= 0 AND p2 <= q(2) THEN MOVE cx,cy:DRAW p1,p2
 2300 cx = p1:cy = p2: RETURN
 2370 REM  ******************* HELP ******************** FNH ***
 2410 CLS
