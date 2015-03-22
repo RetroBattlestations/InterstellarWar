@@ -243,7 +243,7 @@
  2710  NEXT I
  2720 R1$ = P1$: RETURN 
  2740  REM  *********** POLL TERMINAL CAPABILITY ******** FNi ***
- 2750 R1 = 1:Q(1) = 319:Q(2) = 175
+ 2750 R1 = 1:Q(1) = 639:Q(2) = 175
  2760  RETURN 
  2970  REM  ******************** EXIT ***************************
  2980  IF G THEN  TEXT 
