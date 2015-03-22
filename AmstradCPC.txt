@@ -62,18 +62,25 @@
 610 REM  -------------------- MAKE STARS ---------------------
 620 n = n + o
 630 FOR i = 1 TO n
+631 PRINT "i=";i
 640  r = 0
 650  r = r + 1
+651 PRINT "r=";r
+652  exitloop=0
 660  IF r > 20 THEN i = n + 1: GOTO 755
 670  o(i,3) = q(4)
 680  REM  -- j: 1 = Xpos, 2 = Ypos, 3 = Mass/Size --
 690  FOR j = 3 TO 1 STEP  - 1
+691 PRINT "j1=";j
 700   o(i,j) = INT((q(j) - 2 * o(i,3)) *  RND(1) + o(i,3))
 710  NEXT j
 720  FOR j = 1 TO i - 1: IF j > i - 1 THEN 750
+721 PRINT "j2=";j
 730   t = (o(i,3) + o(j,3) + 10) ^ 2
 740   IF (o(i,1) - o(j,1)) ^ 2 +(o(i,2) - o(j,2)) ^ 2 < t THEN j = i - 2: exitloop=-1: GOTO 749
+749   REM
 750  NEXT j
+751  IF exitloop THEN GOTO 650
 755  REM
 760 NEXT i
 770 REM  ----------------- PLACE SPACE SHIPS -----------------
