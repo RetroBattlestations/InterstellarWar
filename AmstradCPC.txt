@@ -1,0 +1,256 @@
+10 REM *****************************************************
+20 REM *                                                   *
+30 REM *                     SPACE WAR                     *
+40 REM *   For one or two Players on a Graphics Terminal   *
+50 REM *                   Jobst Brandt                    *
+60 REM *                  Hewlett-Packard                  *
+61 REM *                   (01 Apr 82)                     *
+65 REM *                                                   *
+66 REM *             Modified for the Apple ][             *
+67 REM *                  by Chris Osborn                  *
+68 REM *                   (06 Jun 90)                     *
+70 REM *                                                   *
+71 REM *           Modified for the Amstrad CPC            *
+72 REM *                 by George Schizas                 *
+73 REM *                  (22 Mar 2015)                    *
+80 REM *                                                   *
+90 REM *****************************************************
+100 DIM c(46),o(21,3),s(16,2),e(8,2)
+120 REM  Star locs and size: Xmax=720, Ymax=360, Smax=0, Smin=0
+130 DATA  0,0,0,0,10,0,-2,0,0,2,-1,0,3,2,-8,0,-2,-2,-4,0,-4
+140 DATA  -2,4,-2,4,0,2,-2,8,0,-3,2,1,0,0,2
+145 DATA -2,6,-2,-6,-6,-2,6,-2,2,-6,2,6,6,2,-6,2
+150 FOR i = 1 TO 4: READ q(i): NEXT: FOR i = 1 TO 16: FOR j = 1 TO 2: READ s(i,j): NEXT j,i: FOR i = 1 TO 8: FOR j = 1 TO 2: READ e(i,j): NEXT j,i
+160 GOSUB 2740:g = r1
+170 REM  - q CONTAINS Xlim,Ylim(screen),Distance,Maxsize(stars)
+220 m = INT(2 *  RND(1) + 1):o = 0
+230 n1$ = "9":p$ = "2"
+250 GOSUB 2370
+270 MODE 2
+280 f1 = 0:f2 = 0:f3 = 0:v1$(1) = "20":v1$(2) = "20"
+290 LOCATE 1, 21: PRINT CHR$(18)"(";p$;") One or two players? ";
+300 INPUT "";a$:p1$ = a$
+310 GOSUB 2000: ON r1 GOTO 290,290,290,270,290,2980
+320 IF a$ = "" THEN a$ = p$
+330 q = VAL(a$)
+340 IF q <> 1 AND q <> 2 THEN 290
+350 NP = q
+360 p$ = STR$(NP)
+370 IF NP = 2 THEN 400
+380 n$(1) = "Player":n$(2) = "Enemy"
+390 GOTO 470
+400 n$(1) = "Spock":n$(2) = "Darth": FOR j = 1 TO 2
+410 LOCATE 1, 21: PRINT CHR$(18)"("n$(j)")  Name of captain #";j;" ";
+420 INPUT "";a$
+430 p1$ = a$: GOSUB 2000: ON r1 GOTO 280,440,280,270,280,2980
+440 IF a$ = "" THEN 460
+450 p1$ = a$: GOSUB 2610:n$(j) = r1$
+460 NEXT j
+470 LOCATE 1, 21: PRINT CHR$(18)"(";n1$;") How many stars?(0 to 18): ";
+480 INPUT "";a$
+490 p1$ = a$: GOSUB 2000: ON r1 GOTO 280,470,470,470,280,2980
+500 IF a$ = "" THEN a$ = n1$
+510 n = VAL(a$)
+530 IF  ABS(n) < 0 OR  ABS(n) > 18 THEN 470
+540 n1$ = STR$(n)
+550 REM  o=Black hole
+560 o =(n < 0)
+570 n = ABS(n)
+580 q(4) = INT(10 - n / 6)
+590 q(3) = INT(q(2) / 3) - n
+600 CLS
+610 REM  -------------------- MAKE STARS ---------------------
+620 n = n + o
+630 FOR i = 1 TO n
+640  r = 0
+650  r = r + 1
+660  IF r > 20 THEN i = n + 1: GOTO 755
+670   o(i,3) = q(4)
+680   REM  -- j: 1 = Xpos, 2 = Ypos, 3 = Mass/Size --
+690  FOR j = 3 TO 1 STEP  - 1
+700   o(i,j) = INT((q(j) - 2 * o(i,3)) *  RND(1) + o(i,3))
+710  NEXT j
+720  FOR j = 1 TO i - 1: IF j > i - 1 THEN 750
+730   t =(o(i,3) + o(j,3) + 10) ^ 2
+740   IF (o(i,1) - o(j,1)) ^ 2 +(o(i,2) - o(j,2)) ^ 2 < t THEN j = i - 2: NEXT j: GOTO 650
+750  NEXT j
+755  REM
+760 NEXT i
+770 REM  ----------------- PLACE SPACE SHIPS -----------------
+780 REM  -- Space ship size = 5 --
+790 o(n + 1,3) = 5:o(n + 2,3) = 5
+800 FOR j = 1 TO 2
+810 t = 4 *  LEN(n$(j)): IF t < 10 THEN t = 10
+820 IF j = 1 THEN i = .28 * q(1):q = 0: GOTO 840
+830 t = - t:i = - .28 * q(1):q = q(1)
+840 r = 0
+850 r = r + 1
+860 IF r > 20 THEN j = 3: NEXT j: GOTO 630
+870 x = INT(i *  RND(1)) + q + t
+880 y = INT((q(2) - 30) *  RND(1) + 20)
+890 FOR k = 1 TO n
+900 IF (x - o(k,1)) ^ 2 +(y - o(k,2)) ^ 2 <(o(k,3) * 2) ^ 2 THEN k = n + 1: NEXT k: GOTO 850
+910 NEXT k
+920 o(n + j,1) = x
+930 o(n + j,2) = y
+940 NEXT j
+950 a1$(1) = "0":a1$(2) = "180"
+960 IF NP > 1 THEN a$ = n$(1):n$(1) = n$(2):n$(2) = a$
+970 REM  -------------------- PLOT STARS ---------------------
+980 GRAPHICS PEN 1
+990 z1 = 3.14159 *(1 / 180)
+1000 FOR i = 0 TO 45
+1010 c(i + 1) = COS(i * 10 * z1)
+1020 NEXT i
+1030 FOR i = 1 TO n - o
+1040 FOR j = 1 TO 37
+1050 x = INT(o(i,1) + o(i,3) * c(j) + .5)
+1060 y = INT(o(i,2) - o(i,3) * c(j + 9) + .5)
+1070 IF j = 1 THEN MOVE x,y
+1080 DRAW x,y
+1090 NEXT j
+1110 NEXT i
+1130 REM  ------------------ PLOT SPACE SHIPS -----------------
+1140 FOR i = 1 TO 2
+1150 p1 = o(n + i,1):p2 = o(n + i,2):p3$ = n$(i):p4 = i: GOSUB 2120
+1160 NEXT i
+1170 IF a$(1,1) = "i" THEN 1450
+1180 GOTO 1210
+1190 REM  --------------------- PLAY GAME ---------------------
+1200 m = m -  INT(m / 2) * 2 + 1
+1210 IF NP = 1 THEN m = 1
+1240 LOCATE 26, 23: PRINT CHR$(18)"(" + a1$(m) + ") ";n$(m);"'s, launch angle: ";
+1250 b = 20:f1 = 1
+1260 INPUT "";a$
+1270 IF a$ = "" THEN a$ = a1$(m)
+1280 p1$ = a$: GOSUB 2000: ON r1 GOTO 1240,980,1240,270,1240,2980
+1290 a = VAL(a$)
+1300 a = -  SGN(a) * (ABS(a) -  INT(ABS(a) / 360) * 360)
+1310 a1$(m) = STR$(-a)
+1320 IF n = 0 THEN 1450
+1330 LOCATE 26, 23: PRINT CHR$(18);
+1340 PRINT "(";v1$(m);") ";n$(m);"'s initial velocity: ";
+1350 INPUT "";a$
+1360 IF a$ = "" THEN a$ = v1$(m)
+1370 p1$ = a$: GOSUB 2000: ON r1 GOTO 1240,980,1330,270,1240,2980
+1380 b = VAL(a$)
+1390 IF b >  = 0 AND b <  = 20 THEN 1420
+1400 LOCATE 26, 22: PRINT "Velocity must be from 0 to 20"
+1410 GOTO 1330
+1420 v1$(m) = STR$(b)
+1450 u1 = 0:u2 = 0:v1 = 0:v2 = 0:f3 = 0
+1460 x = .35 * b *  COS(a * z1)
+1470 y = .35 * b *  SIN(a * z1)
+1480 u = x + o(n + m,1) + 8 *  COS(a * z1)
+1490 v = y + o(n + m,2) + 8 *  SIN(a * z1)
+1500 p1 = u:p2 = v: GOSUB 2230
+1510 IF f2 THEN 1570
+1520 REM  ----------------- DRAW ROCKET PATH ------------------
+1530 u1 = INT(u + .5):v1 = INT(v + .5)
+1540 IF u1 <> u2 OR v1 <> v2 THEN p1 = u1:p2 = v1: GOSUB 2290
+1550 u2 = u1:v2 = v1
+1560 REM  -- e = Xforce, f = Yforce --
+1570 e = 0:f = 0
+1580 FOR j = 1 TO n
+1590 r5 = o(j,1) - u
+1600 r6 = o(j,2) - v
+1610 r4 = r5 ^ 2 + r6 ^ 2
+1620 r3 = SQR(r4)
+1630 r2 = r5 / r3
+1640 r1 = r6 / r3
+1650 g = .017 *(o(j,3) ^ 3) / r4
+1660 e = e + g * r2
+1670 f = f + g * r1
+1680 NEXT j
+1690 x = x + e
+1700 y = y + f
+1710 u = u + x
+1720 v = v + y
+1730 REM  ------------------ FIND COLLISIONS ------------------
+1740 IF f2 THEN 1790
+1750 FOR j = 1 TO n + 2
+1755 IF j = n + 1 THEN 1780
+1760 IF o AND j = n THEN 1780
+1770 IF (u - o(j,1)) ^ 2 +(v - o(j,2)) ^ 2 < o(j,3) ^ 2 THEN f1 = j:j = n + 3: NEXT j:j = f1: GOTO 1880
+1780 NEXT j
+1790 IF u <  - q(1) OR u > q(1) * 2 OR v <  - q(2) OR v > q(2) * 2 THEN 1200
+1800 f2 =(u < 0 OR u > q(1) OR v < 0 OR v > q(2))
+1810 REM  -- f2=f3(no change............) --
+1820 REM  -- f2=1 (just went off screen.) --
+1830 REM  -- f3=1 (just came onto screen) --
+1840 IF f2 = f3 THEN 1510
+1850 IF f3 THEN p1 = u:p2 = v: GOSUB 2230
+1860 f3 = f2
+1870 GOTO 1510
+1880 REM  ------------------ MAKE EXPLOSIONS ------------------
+1890 p1 = u + 2:p2 = v + 2: GOSUB 2230
+1900 FOR i = 1 TO 8:p1 = e(i,1):p2 = e(i,2): GOSUB 2250: NEXT
+1910 IF j <  = n THEN 1200
+1920 LOCATE 16, 23: PRINT CHR$(18);
+1930 PRINT n$(m);" destroyed ";n$(j - n);"'s ship!";
+1940 PRINT "  (y) Again? : ";
+1950 INPUT "";a$
+1970 IF  MID$(a$,1,2) = "//" THEN 2980
+1980 a$ = LEFT$(a$,1): IF a$ = "d" OR a$ = "i" THEN 980
+1985 IF a$ = "n" OR a$ = "e" THEN 2980
+1990 GOTO 270
+2000 REM  ******************* INPUT ******************* FNC ***
+2010 p1$ = LEFT$(p1$,1)
+2060 IF p1$ = "" THEN r1 = 0: RETURN
+2061 p = 7
+2062 p = p - 1: IF p = 0 THEN 2100
+2063 IF  MID$("BDHS/e",p,1) = p1$ THEN 2080
+2064 GOTO 2062
+2080 IF  MID$(a$,1,2) = "//" THEN p = 6
+2090 IF p = 3 THEN  GOSUB 2370
+2100 r1 = p: RETURN
+2120 REM  **************** MAKE SHIPS ***************** FNS ***
+2140 s =(p4 - 1) * 2 - 1
+2150 GOSUB 2230
+2160 FOR k = 1 TO 16:p1 = s(k,1) * s:p2 = s(k,2): GOSUB 2250: NEXT
+2210 RETURN
+2230 REM  ***************** g CURSOR ****************** FNG$ **
+2240 cx = p1:cy = p2: RETURN
+2250 REM   ***************** DRAW LINE *************************
+2260 IF cx >  = 0 AND cx <  = q(1) AND cy >  = 0 AND cy <  = q(2) AND cx + p1 >  = 0 AND cx + p1 <  = q(1) AND cy + p2 >  = 0 AND cy + p2 <  = q(2) THEN MOVE cx,cy:DRAW cx+p1,cy+p2
+2270 cx = cx + p1:cy = cy + p2
+2280 RETURN
+2290 IF cx >  = 0 AND cx <  = q(1) AND cy >  = 0 AND cy <  = q(2) AND p1 >  = 0 AND p1 <  = q(1) AND p2 >  = 0 AND p2 <  = q(2) THEN MOVE cx,cy:DRAW p1,p2
+2300 cx = p1:cy = p2: RETURN
+2370 REM  ******************* HELP ******************** FNH ***
+2410 CLS
+2420 PRINT "SPACE WAR ";d$: LOCATE 1, 7
+2430 PRINT TAB(26);"     Commands:": PRINT
+2440 PRINT TAB(26);"      h = Help"
+2450 PRINT TAB(26);"      s = Start"
+2460 PRINT TAB(26);"      d = Display"
+2470 PRINT TAB(26);"      i = Instant replay after hit"
+2480 PRINT TAB(26);" / or b = Back"
+2490 PRINT TAB(26);"// or e = Exit": LOCATE 17, 17
+2500 PRINT "Negative number of stars gives a BLACK HOLE"
+2510 LOCATE 22, 19: PRINT "(y) Are you ready to play?(y/n): ";
+2520 INPUT "";a$
+2530 a$ = LEFT$(a$,2): IF a$ > "" THEN a = ASC(a$):a$ = CHR$(a - 32 *(a > 96 AND a < 123)) +  MID$(a$,2)
+2540 IF a$ = "n" OR a$ = "e" OR a$ = "//" THEN 2580
+2550 IF a$ = "h" THEN 2410
+2560 RETURN
+2570 RETURN
+2580 CLS
+2590 END
+2610 REM  ************** FUNCTION DOWNSHIFT *********** FNS$ **
+2640 m = 0: IF p1$ = "" THEN  RETURN
+2650 FOR i = 1 TO  LEN(p1$)
+2660 k = ASC(MID$(p1$,i,1))
+2670 IF k = 32 THEN m = 0
+2680 IF k < 65 OR k > 91 THEN 2710
+2690 IF m THEN p1$ = MID$(p1$,1,i - 1) +  CHR$(k + 32) +  MID$(p1$,i + 1)
+2700 m = 1
+2710 NEXT i
+2720 r1$ = p1$: RETURN
+2740 REM  *********** POLL TERMINAL CAPABILITY ******** FNi ***
+2750 r1 = 1:q(1) = 279:q(2) = 159
+2760 RETURN
+2970 REM  ******************** EXIT ***************************
+2980 IF g THEN  CLS
+2990 CLS
+3000 END
