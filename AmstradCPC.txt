@@ -81,8 +81,8 @@
 790 o(n + 1,3) = 5:o(n + 2,3) = 5
 800 FOR j = 1 TO 2
 810 t = 4 *  LEN(n$(j)): IF t < 10 THEN t = 10
-820 IF j = 1 THEN i = .28 * q(1):q = 0: GOTO 840
-830 t = - t:i = - .28 * q(1):q = q(1)
+820 IF j = 1 THEN i = 0.28 * q(1):q = 0: GOTO 840
+830 t = - t:i = - 0.28 * q(1):q = q(1)
 840 r = 0
 850 r = r + 1
 860 IF r > 20 THEN j = 3: NEXT j: GOTO 630
@@ -104,8 +104,8 @@
 1020 NEXT i
 1030 FOR i = 1 TO n - o
 1040 FOR j = 1 TO 37
-1050 x = INT(o(i,1) + o(i,3) * c(j) + .5)
-1060 y = INT(o(i,2) - o(i,3) * c(j + 9) + .5)
+1050 x = INT(o(i,1) + o(i,3) * c(j) + 0.5)
+1060 y = INT(o(i,2) - o(i,3) * c(j + 9) + 0.5)
 1070 IF j = 1 THEN MOVE x,y
 1080 DRAW x,y
 1090 NEXT j
@@ -139,14 +139,14 @@
 1410 GOTO 1330
 1420 v1$(m) = STR$(b)
 1450 u1 = 0:u2 = 0:v1 = 0:v2 = 0:f3 = 0
-1460 x = .35 * b *  COS(a * z1)
-1470 y = .35 * b *  SIN(a * z1)
+1460 x = 0.35 * b *  COS(a * z1)
+1470 y = 0.35 * b *  SIN(a * z1)
 1480 u = x + o(n + m,1) + 8 *  COS(a * z1)
 1490 v = y + o(n + m,2) + 8 *  SIN(a * z1)
 1500 p1 = u:p2 = v: GOSUB 2230
 1510 IF f2 THEN 1570
 1520 REM  ----------------- DRAW ROCKET PATH ------------------
-1530 u1 = INT(u + .5):v1 = INT(v + .5)
+1530 u1 = INT(u + 0.5):v1 = INT(v + 0.5)
 1540 IF u1 <> u2 OR v1 <> v2 THEN p1 = u1:p2 = v1: GOSUB 2290
 1550 u2 = u1:v2 = v1
 1560 REM  -- e = Xforce, f = Yforce --
@@ -158,7 +158,7 @@
 1620 r3 = SQR(r4)
 1630 r2 = r5 / r3
 1640 r1 = r6 / r3
-1650 g = .017 *(o(j,3) ^ 3) / r4
+1650 g = 0.017 *(o(j,3) ^ 3) / r4
 1660 e = e + g * r2
 1670 f = f + g * r1
 1680 NEXT j
