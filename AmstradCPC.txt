@@ -26,7 +26,7 @@
 220 m = INT(2 *  RND(1) + 1):o = 0
 230 n1$ = "9":p$ = "2"
 250 GOSUB 2370
-270 MODE 2
+270 MODE 1
 280 f1 = 0:f2 = 0:f3 = 0:v1$(1) = "20":v1$(2) = "20"
 290 LOCATE 1, 21: PRINT CHR$(18)"(";p$;") One or two players? ";
 300 INPUT "";a$:p1$ = a$
@@ -62,45 +62,44 @@
 610 REM  -------------------- MAKE STARS ---------------------
 620 n = n + o
 630 FOR i = 1 TO n
-631 PRINT "i=";i
 640  r = 0
 650  r = r + 1
-651 PRINT "r=";r
-652  exitloop=0
+652  exitloop1 = 0
 660  IF r > 20 THEN i = n + 1: GOTO 755
 670   o(i,3) = q(4)
 680   REM  -- j: 1 = Xpos, 2 = Ypos, 3 = Mass/Size --
 690  FOR j = 3 TO 1 STEP  - 1
-691 PRINT "j1=";j
 700   o(i,j) = INT((q(j) - 2 * o(i,3)) *  RND(1) + o(i,3))
 710  NEXT j
-720  FOR j = 1 TO i-1: IF j > i-1 THEN 750
-721 PRINT "j2=";j
+720  FOR j = 1 TO i-1:REM IF j > i-1 THEN 749
 730   t =(o(i,3) + o(j,3) + 10) ^ 2
-740   IF (o(i,1) - o(j,1)) ^ 2 +(o(i,2) - o(j,2)) ^ 2 < t THEN j = i - 2: exitloop=-1: GOTO 749
-749   REM
+740   IF (o(i,1)-o(j,1))^2 + (o(i,2)-o(j,2))^2 < t THEN j = i: exitloop1 = -1
 750  NEXT j
-751  IF exitloop THEN GOTO 650
+751  IF exitloop1 THEN GOTO 650
 755  REM
 760 NEXT i
 770 REM  ----------------- PLACE SPACE SHIPS -----------------
 780 REM  -- Space ship size = 5 --
 790 o(n + 1,3) = 5:o(n + 2,3) = 5
 800 FOR j = 1 TO 2
-810 t = 4 *  LEN(n$(j)): IF t < 10 THEN t = 10
-820 IF j = 1 THEN i = 0.28 * q(1):q = 0: GOTO 840
-830 t = - t:i = - 0.28 * q(1):q = q(1)
-840 r = 0
-850 r = r + 1
-860 IF r > 20 THEN j = 3: NEXT j: GOTO 630
-870 x = INT(i *  RND(1)) + q + t
-880 y = INT((q(2) - 30) *  RND(1) + 20)
-890 FOR k = 1 TO n
-900 IF (x - o(k,1)) ^ 2 +(y - o(k,2)) ^ 2 <(o(k,3) * 2) ^ 2 THEN k = n + 1: NEXT k: GOTO 850
-910 NEXT k
-920 o(n + j,1) = x
-930 o(n + j,2) = y
+810  t = 4 *  LEN(n$(j)): IF t < 10 THEN t = 10
+820  IF j = 1 THEN i = 0.28 * q(1):q = 0: GOTO 840
+830  t = - t:i = - 0.28 * q(1):q = q(1)
+840  r = 0
+850  r = r + 1
+851  exitloop2 = 0
+852  exitloop3 = 0
+860  IF r > 20 THEN j = 3: exitloop3 = -1: GOTO 940
+870  x = INT(i *  RND(1)) + q + t
+880  y = INT((q(2) - 30) *  RND(1) + 20)
+890  FOR k = 1 TO n
+900   IF (x - o(k,1)) ^ 2 +(y - o(k,2)) ^ 2 <(o(k,3) * 2) ^ 2 THEN k = n+1: exitloop2 = -1
+910  NEXT k
+911  IF exitloop2 THEN 850
+920  o(n + j,1) = x
+930  o(n + j,2) = y
 940 NEXT j
+941 IF exitloop3 THEN 630
 950 a1$(1) = "0":a1$(2) = "180"
 960 IF NP > 1 THEN a$ = n$(1):n$(1) = n$(2):n$(2) = a$
 970 REM  -------------------- PLOT STARS ---------------------
@@ -113,8 +112,8 @@
 1040 FOR j = 1 TO 37
 1050 x = INT(o(i,1) + o(i,3) * c(j) + 0.5)
 1060 y = INT(o(i,2) - o(i,3) * c(j + 9) + 0.5)
-1070 IF j = 1 THEN MOVE x,y
-1080 DRAW x,y
+1070 IF j = 1 THEN MOVE x*2,y*2
+1080 DRAW x*2,y*2
 1090 NEXT j
 1110 NEXT i
 1130 REM  ------------------ PLOT SPACE SHIPS -----------------
@@ -178,8 +177,9 @@
 1750 FOR j = 1 TO n + 2
 1755 IF j = n + 1 THEN 1780
 1760 IF o AND j = n THEN 1780
-1770 IF (u - o(j,1)) ^ 2 +(v - o(j,2)) ^ 2 < o(j,3) ^ 2 THEN f1 = j:j = n + 3: NEXT j:j = f1: GOTO 1880
+1770 IF (u - o(j,1)) ^ 2 +(v - o(j,2)) ^ 2 < o(j,3) ^ 2 THEN f1 = j:j = n+3: j = f1: exitloop4 = -1
 1780 NEXT j
+1781 IF exitloop4 THEN GOTO 1880
 1790 IF u <  - q(1) OR u > q(1) * 2 OR v <  - q(2) OR v > q(2) * 2 THEN 1200
 1800 f2 =(u < 0 OR u > q(1) OR v < 0 OR v > q(2))
 1810 REM  -- f2=f3(no change............) --
@@ -219,10 +219,10 @@
 2230 REM  ***************** g CURSOR ****************** FNG$ **
 2240 cx = p1:cy = p2: RETURN
 2250 REM   ***************** DRAW LINE *************************
-2260 IF cx >= 0 AND cx <= q(1) AND cy >= 0 AND cy <= q(2) AND cx + p1 >= 0 AND cx + p1 <= q(1) AND cy + p2 >= 0 AND cy + p2 <= q(2) THEN MOVE cx,cy:DRAW cx+p1,cy+p2
+2260 IF cx >= 0 AND cx <= q(1) AND cy >= 0 AND cy <= q(2) AND cx + p1 >= 0 AND cx + p1 <= q(1) AND cy + p2 >= 0 AND cy + p2 <= q(2) THEN MOVE cx*2,cy*2:DRAW (cx+p1)*2,(cy+p2)*2
 2270 cx = cx + p1:cy = cy + p2
 2280 RETURN
-2290 IF cx >= 0 AND cx <= q(1) AND cy >= 0 AND cy <= q(2) AND p1 >= 0 AND p1 <= q(1) AND p2 >= 0 AND p2 <= q(2) THEN MOVE cx,cy:DRAW p1,p2
+2290 IF cx >= 0 AND cx <= q(1) AND cy >= 0 AND cy <= q(2) AND p1 >= 0 AND p1 <= q(1) AND p2 >= 0 AND p2 <= q(2) THEN MOVE cx*2,cy*2:DRAW p1*2,p2*2
 2300 cx = p1:cy = p2: RETURN
 2370 REM  ******************* HELP ******************** FNH ***
 2410 CLS
