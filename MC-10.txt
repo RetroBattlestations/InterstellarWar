@@ -67,10 +67,10 @@
  690  FOR J = 3 TO 1 STEP  - 1
  700 OA(I,J) =  INT ((Q(J) - 2 * OA(I,3)) *  RND(0) + OA(I,3))
  710  NEXT J:IF I = 1 THEN 760
- 720 RJ = 0:FOR J = 1 TO I - 1
+ 720 FOR J = 1 TO I - 1
  730 T = (OA(I,3) + OA(J,3) + 10) ^ 2
- 740 IF (OA(I,1) - OA(J,1)) ^ 2 + (OA(I,2) - OA(J,2)) ^ 2 < T THEN J = I: RJ = 1
- 750  NEXT J:IF RJ THEN 650
+ 740 IF (OA(I,1) - OA(J,1)) ^ 2 + (OA(I,2) - OA(J,2)) ^ 2 < T THEN J = I
+ 750  NEXT J:IF J > I THEN 650
  760  NEXT I:IF R > 20 THEN 630
  770  REM  ----------------- PLACE SPACE SHIPS -----------------
  780  REM  -- Space ship size = 5 --
@@ -80,16 +80,16 @@
  820  IF J = 1 THEN I = .28 * Q(1):Q = 0: GOTO 840
  830 T =  - T:I =  - .28 * Q(1):Q = Q(1)
  840 R = 0
- 850 R = R + 1:RK = 0
- 860  IF R > 20 THEN J = 3: RJ = 1: GOTO 940
+ 850 R = R + 1
+ 860  IF R > 20 THEN J = 3: GOTO 940
  870 X =  INT (I *  RND(0)) + Q + T
  880 Y =  INT ((Q(2) - 30) *  RND(0) + 20)
  890  FOR K = 1 TO N
- 900  IF (X - OA(K,1)) ^ 2 + (Y - OA(K,2)) ^ 2 < (OA(K,3) * 2) ^ 2 THEN K = N + 1: RK = 1
- 910  NEXT K:IF RK THEN 850
+ 900  IF (X - OA(K,1)) ^ 2 + (Y - OA(K,2)) ^ 2 < (OA(K,3) * 2) ^ 2 THEN K = N + 1
+ 910  NEXT K:IF K > N + 1 THEN 850
  920 OA(N + J,1) = X
  930 OA(N + J,2) = Y
- 940  NEXT J: IF RJ THEN 630
+ 940  NEXT J: IF J = 4 THEN 630
  950 A1$(1) = "0":A1$(2) = "180"
  960  IF NP > 1 THEN A$ = N$(1):N$(1) = N$(2):N$(2) = A$
  970  REM  -------------------- PLOT STARS ---------------------
