@@ -130,7 +130,7 @@
 1340 PRINT "(";V1$(M);") ";N$(M);"'s initial velocity: ";
 1350 INPUT "";A$
 1360 IF A$ = "" THEN A$ = V1$(M)
-1370 P1$ = A$: GOSUB 2000: ON R1 GOTO 1240,980,1330,270,1240,2980
+1370 P1$ = A$: GOSUB 2000: ON R1 GOTO 1245,980,1330,270,1245,2980
 1380 B = VAL (A$)
 1390 IF B > = 0 AND B < = 20 THEN 1420
 1400 PRINT "Velocity must be from 0 to 20"
