@@ -1,15 +1,20 @@
 10 rem *****************************************************
-20 rem *
-30 rem * space war
-40 rem * for one or two players on a graphics terminal
-50 rem * jobst brandt
-60 rem * hewlett-packard
-61 rem * (01 apr 82)
-65 rem *
-66 rem * converted for c64 from the trs-80 mc-10 version
-68 rem * by troy morrison
-69 rem * (29 mar 2015
-80 rem *
+20 rem *                                                   *
+30 rem *                     space war                     *
+40 rem *   for one or two players on a graphics terminal   *
+50 rem *                    jobst brandt                   *
+60 rem *                  hewlett-packard                  *
+61 rem *                     (01 apr 82)                   *
+65 rem *                                                   *
+66 rem *               modified for the apple ][           *
+67 rem *                   by chris osborn                 *
+68 rem *                      (06 jun 90)                  *
+70 rem *                                                   *
+71 rem *            modified for the commodore 64          *
+72 rem *                  by troy morrison                 *
+73 rem *                     (05 apr 2015)                 *
+76 d$="64 05-apr-15"
+80 rem *                                                   *
 90 rem *****************************************************
 100 dim c(46),oa(21,3),s(16,2),e(8,2)
 120 rem star locs and size: xmax=720, ymax=360, smax=0, smin=0
@@ -17,15 +22,17 @@
 140 data -2,4,-2,4,0,2,-2,8,0,-3,2,1,0,0,2
 145 data -2,6,-2,-6,-6,-2,6,-2,2,-6,2,6,6,2,-6,2
 150 fori=1to4:readq(i):next:fori=1to16:forj=1to2:reads(i,j):nextj,i
-155 fori=1to8:forj=1to2:reade(i,j):nextj,i
+151 fori=1to8:forj=1to2:reade(i,j):nextj,i
+155 gosub 4000:rem setup graphics/ML routine
 160 gosub 2740:g = r1
 170 rem - q contains xlim,ylim(screen),distance,maxsize(stars)
-220 m = int (2 * rnd(0) + 1):o = 0
-230 n1$ = "9":p$ = "2"
+220 m=int(2*rnd(0)+1):o=0
+230 n1$="9":p$="2"
 250 gosub 2370
-270 print chr$(147);
+260 cl$=chr$(147):fori=1to23:cl$=cl$+chr$(17):next
+270 print cl$;
 280 f1 = 0:f2 = 0:f3 = 0:v1$(1) = "20":v1$(2) = "20"
-290 print "(";p$;") one or two players? ";
+290 print cl$;"(";p$;") One or two players? ";
 300 input "";a$:p1$ = a$
 310 gosub 2000: on r1 goto 290,290,290,270,290,2980
 320 if a$ = "" then a$ = p$
@@ -34,16 +41,16 @@
 350 np = q
 360 p$ = str$ (np)
 370 if np = 2 then 400
-380 n$(1) = "player":n$(2) = "enemy"
+380 n$(1) = "Player":n$(2) = "Enemy"
 390 goto 470
-400 n$(1) = "spock":n$(2) = "darth": for j = 1 to 2
-410 print "("n$(j)") name of captain #";j;" ";
+400 n$(1) = "Spock":n$(2) = "Darth": for j = 1 to 2
+410 print cl$;"("n$(j)") Name of captain #";j;" ";
 420 input "";a$
 430 p1$ = a$: gosub 2000: on r1 goto 280,440,280,270,280,2980
 440 if a$ = "" then 460
 450 p1$ = a$: gosub 2610:n$(j) = r1$
 460 next j
-470 print "(";n1$;") how many stars? (0 to 18): ";
+470 print cl$;"(";n1$;") How many stars? (0 to 18): ";
 480 input "";a$
 490 p1$ = a$: gosub 2000: on r1 goto 280,470,470,470,280,2980
 500 if a$ = "" then a$ = n1$
@@ -57,6 +64,7 @@
 590 q(3) = int (q(2) / 3) - n
 600 print chr$(147);
 610 rem -------------------- make stars ---------------------
+615 print cl$;"Laying out stars..."
 620 n = n + o
 630 for i = 1 to n
 640 r = 0
@@ -71,7 +79,7 @@
 730 t = (oa(i,3) + oa(j,3) + 10) ^ 2
 740 if (oa(i,1) - oa(j,1)) ^ 2 + (oa(i,2) - oa(j,2)) ^ 2 < t then j = i
 750 next j:if j > i then 650
-760 next i:if r > 20 then print"still thinking...":goto630
+760 next i:if r > 20 then print".";:goto630
 770 rem ----------------- place space ships -----------------
 780 rem -- space ship size = 5 --
 790 oa(n + 1,3) = 5:oa(n + 2,3) = 5
@@ -89,11 +97,11 @@
 910 next k:if k > n + 1 then 850
 920 oa(n + j,1) = x
 930 oa(n + j,2) = y
-940 next j: if j = 4 then 630
+940 next j: if j = 4 then print".";:goto 630
 950 a1$(1) = "0":a1$(2) = "180"
 960 if np > 1 then a$ = n$(1):n$(1) = n$(2):n$(2) = a$
 970 rem -------------------- plot stars ---------------------
-980 gosub 4030
+980 sys49152:gosub 4060
 990 z1 = 3.14159 * (1 / 180)
 1000 for i = 0 to 45
 1010 c(i + 1) = cos (i * 10 * z1)
@@ -102,11 +110,12 @@
 1040 for j = 1 to 37
 1050 x = int (oa(i,1) + oa(i,3) * c(j) + .5)
 1060 y = int (oa(i,2) - oa(i,3) * c(j + 9) + .5)
-1070 if j = 1 then x1%=x:y1%=y:gosub 4100
-1080 x2%=x:y2%=y:gosub5000
+1070 if j = 1 then x1%=x:y1%=y:x2%=x:y2%=y:gosub 4100
+1080 x2%=x:y2%=y:gosub4100
 1090 next j
 1110 next i
 1130 rem ------------------ plot space ships -----------------
+1135 print cl$;"Laying out ships..."
 1140 for i = 1 to 2
 1150 p1 = oa(n + i,1):p2 = oa(n + i,2):p3$ = n$(i):p4 = i: gosub 2120
 1160 next i
@@ -115,23 +124,20 @@
 1190 rem --------------------- play game ---------------------
 1200 m = m - int (m / 2) * 2 + 1
 1210 if np = 1 then m = 1
-1220 poke 53280,0
-1240 get a$:if a$ = "" then 1240
-1242 gosub 4050:poke 53280,14
-1245 print "(" + a1$(m) + ") ";n$(m);"'s, launch angle: ";
+1240 print cl$;"(" + a1$(m) + ") ";n$(m);"'s, launch angle: ";
 1250 b = 20:f1 = 1
 1260 input "";a$
 1270 if a$ = "" then a$ = a1$(m)
-1280 p1$ = a$: gosub 2000: on r1 goto 1245,980,1245,270,1245,2980
+1280 p1$ = a$: gosub 2000: on r1 goto 1240,980,1240,270,1240,2980
 1290 a = val (a$)
 1300 a = - sgn (a) * ( abs (a) - int ( abs (a) / 360) * 360)
 1310 a1$(m) = str$ ( - a)
 1320 if n = 0 then 1450
 1330 rem locate 23,26
-1340 print "(";v1$(m);") ";n$(m);"'s initial velocity: ";
+1340 print chr$(13);"(";v1$(m);") ";n$(m);"'s, launch speed: ";
 1350 input "";a$
 1360 if a$ = "" then a$ = v1$(m)
-1370 p1$ = a$: gosub 2000: on r1 goto 1245,980,1330,270,1245,2980
+1370 p1$ = a$: gosub 2000: on r1 goto 1240,980,1330,270,1240,2980
 1380 b = val (a$)
 1390 if b > = 0 and b < = 20 then 1420
 1400 print "velocity must be from 0 to 20"
@@ -145,7 +151,7 @@
 1500 p1 = u:p2 = v: gosub 2230
 1510 if f2 then 1570
 1520 rem ----------------- draw rocket path ------------------
-1525 gosub 4000
+1525 sys 49152
 1530 u1=int(u+.5):v1=int(v+.5)
 1540 if u1<>u2 or v1<>v2 then p1=u1:p2=v1:gosub 2290
 1550 u2 = u1:v2 = v1
@@ -186,16 +192,13 @@
 1890 p1 = u + 2:p2 = v + 2: gosub 2230
 1900 for i = 1 to 8:p1 = e(i,1):p2 = e(i,2): gosub 2250: next 
 1910 if j < = n then 1200
-1920 rem locate 23,16
-1925 poke 53280,0
-1926 get a$:if a$="" then 1926
-1927 gosub 4050:poke 53280,14
+1920 print cl$;
 1930 print n$(m);" destroyed ";n$(j - n);"'s ship!"
-1940 print " (y) again? : ";
+1940 print " (y) Again? : ";
 1950 input "";a$
 1970 if mid$ (a$,1,2) = "//" then 2980
-1980 a$=left$(a$,1):if a$="d" or a$="i" or a$="d" or a$="i" then 980
-1985 if a$="n" or a$="e" or a$="n" or a$="e" then 2980
+1980 a$=left$(a$,1):if a$="d" or a$="i" or a$="D" or a$="I" then 980
+1985 if a$="n" or a$="e" or a$="N" or a$="E" then 2980
 1990 goto 270
 2000 rem ******************* input ******************* fnc ***
 2010 p1$ = left$ (p1$,1)
@@ -217,30 +220,30 @@
 2250 rem ***************** draw line *************************
 2260 ifcx<0orcx>q(1)orcy<0orcy>q(2)then2270
 2261 ifcx+p1<0orcx+p1>q(1)orcy+p2<0orcy+p2>q(2)then2270
-2265 x1%=cx:y1%=cy:x2%=cx+p1:y2%=cy+p2:gosub5000
+2265 x1%=cx:y1%=cy:x2%=cx+p1:y2%=cy+p2:gosub4100
 2270 cx = cx + p1:cy = cy + p2
 2280 return 
 2290 ifcx<0orcx>q(1)orcy<0orcy>q(2)orp1<0orp1>q(1)orp2<0orp2>q(2)then2300
-2295 x1%=cx:y1%=cy:x2%=p1:y2%=p2:gosub5000
+2295 x1%=cx:y1%=cy:x2%=p1:y2%=p2:gosub4100
 2300 cx = p1:cy = p2: return 
 2370 rem ******************* help ******************** fnh ***
-2410 gosub4050:print chr$(147);
-2420 print "space war ";d$: rem locate 7,1
-2430 print tab( 6);" commands:": print 
-2440 print tab( 6);" h = help"
-2450 print tab( 6);" s = start"
-2460 print tab( 6);" d = display"
-2470 print tab( 6);" i = instant replay after hit"
-2480 print tab( 6);" / or b = back"
-2490 print tab( 6);"// or e = exit": rem locate 17,17
-2500 print "negative number of stars gives":print "a black hole"
-2510 print "(y) are you ready to play? (y/n): ";
+2410 sys49155:print chr$(147);
+2420 print "SPACE WAR ";d$: rem locate 7,1
+2430 print tab( 6);" Commands:": print 
+2440 print tab( 6);" H = Help"
+2450 print tab( 6);" S = Start"
+2460 print tab( 6);" D = Display"
+2470 print tab( 6);" I = Instant replay after hit"
+2480 print tab( 6);" / or B = Back"
+2490 print tab( 6);"// or E = Exit": rem locate 17,17
+2500 print "Negative number of stars creates":print "black holes"
+2510 print "(y) Are you ready to play? (y/n): ";
 2520 input "";a$
 2530 a$=left$(a$,2):ifa$>""thena=asc(a$):a$=chr$(a-32*(a>96anda<123))+mid$(a$,2)
 2540 if a$="n" or a$="e" or a$="//" then 2580
 2550 if a$="h" then 2410
 2560 return
-2580 print chr$(147);
+2580 print chr$(147);:sys 49155:poke 19,0
 2590 end 
 2610 rem ************** function downshift *********** fns$ **
 2640 m = 0: if p1$ = "" then return 
@@ -253,47 +256,56 @@
 2710 next i
 2720 r1$ = p1$: return 
 2740 rem *********** poll terminal capability ******** fni ***
-2750 r1=1:q(1)=320:q(2)=200
+2750 r1=1:q(1)=319:q(2)=183
 2760 return 
 2970 rem ******************** exit ***************************
-2980 if g then gosub 4050 
-2990 print chr$(147); 
+2980 if g then sys49155
+2990 print chr$(147);:poke 19,0
 3000 end 
 4000 rem ************************* c64 routines *****************************
-4010 rem -- set graphics mode
-4020 gb=2:poke 56576,gb:rem select vic-ii bank 1
-4021 sb=7:mb=1:poke 53272,sb*16+mb*8:rem select screen block 7, bitmap block 1
-4022 gm=49152-gb*16384:sm=gm+sb*1024:mm=gm+mb*8192:rem set addresses
-4023 poke 53265,peek(53265)or 32
-4024 fori=0to7:tp(i)=2^i:next
-4025 return
-4028 rem -- clear graphics screen
-4030 gosub 4000:oe=16:ze=0
-4032 for i=sm to sm+1000:poke i,oe:next:rem set colors
-4035 for i=mm to mm+8191:poke i,ze:next:rem clear bitmap
-4038 sv=7:ei=8:tt=320
-4040 return
-4050 rem -- set text mode
-4051 poke 56576,151:rem select bank 0
-4052 poke 53272,23:rem select screen block and bitmap block
-4060 poke 53265,peek(53265) and 223:rem turn off bitmap mode
+4005 rem -- load ML data for splitscreen routine
+4006 poke 53280,0:poke53281,0:print chr$(5);:rem white
+4007 print chr$(147);chr$(14);"Initializing support routines..."
+4008 poke 19,1:rem disable '?' in input prompts
+4010 fori=49152to49318:read a:poke i,a:ck=ck+a:next
+4012 if ck<>19496 then print "Error in ML data!":end
+4015 rem initialize variables for later
+4020 ei=8:sv=7:mm=24576:sm=23552:tt=320:oe=16:ze=0
+4030 fori=0to7:tp(i)=2^i:next
+4040 print "Clearing screen data..."
+4050 fori=smtosm+1000:poke i,oe:next
+4060 fori=mmtomm+8191:poke i,ze:next
 4070 return
-4100 rem -- plot a point
-4105 ifx%<0orx%>320ory%<0ory%>200thenreturn
-4110 row=int(y%/ei):char=int(x%/ei)
-4120 line=y% and sv:bit=sv-(x% and sv)
-4130 byte=mm+row*tt+char*ei+line
-4140 poke byte,peek(byte)or tp(bit)
-4150 return
-5000 rem -- draw a line 
-5010 rem inputs in x1%, y1%, x2%, y2%; destroys x1,y1
-5020 dx%=abs(x2%-x1%):sx%=-1:if x1%<x2% then sx%=1
-5030 dy%=abs(y2%-y1%):sy%=-1:if y1%<y2% then sy%=1
-5040 er=-dy%:if dx%>=dy% then er=dx%
-5050 er=int(er/2)
-5060 x%=x1%:y%=y1%:gosub 4100
-5070 if x1%=x2% and y1%=y2% then return
-5080 e2=er
-5090 if e2>-dx% then er=er-dy%:x1%=x1%+sx%
-5100 if e2<dy% then er=er+dx%:y1%=y1%+sy%
-5110 goto 5060
+4100 rem -- draw a line from x1%,y1% to x2%,y2%
+4110 dx%=abs(x2%-x1%):sx%=-1:ifx1%<x2%thensx%=1
+4120 dy%=abs(y2%-y1%):sy%=-1:ify1%<y2%thensy%=1
+4130 er=-dy%:ifdx%>=dy%thener=dx%
+4140 er=int(er/2)
+4150 x%=x1%:y%=y1%:gosub 4200
+4160 ifx1%=x2%andy1%=y2%thenreturn
+4170 e2=er:ife2>-dx%thener=er-dy%:x1%=x1%+sx%
+4180 ife2<dy%thener=er+dx%:y1%=y1%+sy%
+4190 goto 4150
+4200 rem -- plot a point (x%,y%)
+4210 ifx%<0orx%>319ory%<0ory%>183thenreturn
+4220 row=int(y%/ei):char=int(x%/ei):line=y% and sv:bit=sv-(x% and sv)
+4230 byte=mm+row*tt+char*ei+line
+4240 poke byte,peek(byte)or tp(bit)
+4250 return
+5000 rem m/l data
+5010 data 076,012,192,076,051,192,076,129,192,076,148
+5020 data 192,120,169,127,141,013,220,173,013,220,169
+5030 data 001,141,026,208,169,127,045,017,208,141,017
+5040 data 208,169,000,141,018,208,169,077,141,020,003
+5050 data 169,192,141,021,003,088,096,032,148,192,120
+5060 data 169,000,141,026,208,169,049,141,020,003,169
+5070 data 234,141,021,003,169,255,141,013,220,088,096
+5080 data 032,129,192,169,103,141,020,003,169,192,141
+5090 data 021,003,169,234,141,018,208,169,255,141,025
+5100 data 208,076,049,234,032,148,192,169,077,141,020
+5110 data 003,169,192,141,021,003,169,000,141,018,208
+5120 data 169,255,141,025,208,076,126,234,169,002,141
+5130 data 000,221,169,120,141,024,208,173,017,208,009
+5140 data 032,141,017,208,096,169,151,141,000,221,169
+5150 data 023,141,024,208,173,017,208,041,223,141,017
+5160 data 208,096
